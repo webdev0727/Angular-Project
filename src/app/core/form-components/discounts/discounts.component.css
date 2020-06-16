@@ -1,0 +1,140 @@
+p {margin-bottom: 1.3em;}
+
+h1, h2, h3, h4 {
+  margin: 1.414em 0 0.5em;
+  font-weight: inherit;
+  line-height: 1.2;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 3.998em;
+}
+
+h2 {font-size: 2.827em;}
+
+h3 {font-size: 1.999em;}
+
+h4 {font-size: 1.414em;}
+
+small, .font_small {font-size: 0.707em;}
+
+blockquote {
+    font-size: 0.707em;
+    font-style: italic;
+    color: #555;
+    opacity: .8;
+}
+
+.discount-card {
+    flex: 0 0 27%;
+    height: 5rem;
+    margin-top: .5rem;
+    margin-right: 0.5rem;
+}
+
+.discount-card-footer {
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.discount-card-header {
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.discounts-container {
+    min-height: 600px;
+}
+
+.discounts-container-cards {
+    display: flex;
+    justify-content: center;
+    flex-flow: row wrap;
+}
+
+.info-icon {
+    transform: translateY(3px);
+    font-size: 1rem;
+}
+
+.mat-button-long {
+    width: 90%;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    flex-flow: row wrap;
+    margin:1.25rem auto;
+}
+
+.progress-btn {
+    background-color: #111;
+    border-radius: .3125rem;
+    color: white;
+    height: 100px;
+    font-size: 1.5rem!important;
+    margin: 0 auto;
+    margin-bottom: 100px;
+    text-align: center;
+    width: 19rem;
+}
+
+.progress-btn:focus {
+    outline: none;
+}
+
+.round > .link {
+  font-size: 28px;
+  float: left;
+  cursor: pointer;
+}
+
+.round {
+    position: relative;
+  }
+  
+  .round label {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    height: 28px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 28px;
+  }
+  
+  .round label:after {
+    border: 2px solid #fff;
+    border-top: none;
+    border-right: none;
+    content: "";
+    height: 6px;
+    left: 7px;
+    opacity: 0;
+    position: absolute;
+    top: 8px;
+    transform: rotate(-45deg);
+    width: 12px;
+  }
+  
+  .round input[type="checkbox"] {
+    visibility: hidden;
+  }
+  
+  .round input[type="checkbox"]:checked + label {
+    background-color: #66bb6a;
+    border-color: #66bb6a;
+  }
+  
+  .round input[type="checkbox"]:checked + label:after {
+    opacity: 1;
+  }
+
+
+@media (max-width: 899px) {
+    .discount-card {
+        height: 6rem;
+    }
+}

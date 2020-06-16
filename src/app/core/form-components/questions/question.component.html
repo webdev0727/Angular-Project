@@ -1,0 +1,724 @@
+<form #insuranceForm="ngForm" *ngIf="questions" [ngClass]="formClass()">
+    <ng-container *ngIf="!isSimpleForm">
+        <ng-container  *ngFor="let question of questions; index as i">
+            <div *ngIf="returnExists(question) && returnQuestionCondition(i)" [ngClass]="styleConditionalQuestions(question)" [ngStyle]="styleQuestion()" [id]="'question-' + i">
+                <div class="question-img-container" *ngIf="question.imageIsSVG && question.image" [innerHTML]="question.image | safe: 'html'">
+                </div>
+                <div class="question-img-container" *ngIf="!question.imageIsSVG && question.imageUrl" [ngStyle]="{'background-image': 'url(' + question.imageUrl + ')','background-position': 'center', 'background-size': 'contain'}">
+                </div>
+                <h4 class="question-header">{{question.headerText}}</h4>
+                <p class="question-sub-header">{{question.subHeaderText}}</p>
+                <div class="input-container" [ngStyle]="styleAnswers(i)">
+                    <ng-container *ngTemplateOutlet="answersRef; context: {$implicit: question, i: i}"></ng-container>
+                </div>
+            </div>
+        </ng-container>
+        <div class="dynamic-progress-btn" style="z-index: 600" [ngStyle]="styleProgressBtn()" *ngIf="returnProgressConditionMobile()">
+            <div class="dynamic-input">
+                <button type="submit" id="progressBtn" class="progress-btn" [disableRipple]="true" mat-raised-button [ngStyle]="styleBrand()" id="toSummary" (click)="$event.preventDefault(); onTransition(null, 1, true, null, i, null)" [innerHtml]="returnProgressButtonText()">
+                </button>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="isSimpleForm">
+        <ng-container *ngFor="let question of questions; index as i">
+            <ng-container *ngTemplateOutlet="answersRef; context: {$implicit: question, i: i}"></ng-container>
+        </ng-container>
+        <div class="dynamic-progress-btn" style="z-index: 600; width: 100%" [ngStyle]="styleProgressBtn()" *ngIf="returnProgressConditionMobile()">
+            <div class="dynamic-input">
+                <button type="submit" id="progressBtn" class="progress-btn" [disableRipple]="true" mat-raised-button [ngStyle]="styleBrand()" id="toSummary" (click)="$event.preventDefault(); onTransition(null, 1, true, null, i, null)" [innerHtml]="returnProgressButtonText()">
+                </button>
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #answersRef let-question let-i="i">
+        <div *ngFor="let answer of question.answers; index as j" [ngModelGroup]="answerIsEnabled(answer, question) ? question.id : 'invalid-' + question.id" #groups="ngModelGroup" [ngClass]="classTypes(answer)" [ngStyle]="styleTypes(answer, question)">
+            <!-- answer.isText Is Text -->
+            <p [ngStyle]="styleText()" *ngIf="answer.isText && !answer.isLink && !answer.isConditional">
+                {{answer.placeholderText}}
+            </p>
+    
+            <!-- answer.isText Is Text -->
+            <p [ngStyle]="styleText()" *ngIf="answer.isText && !answer.isLink && answer.isConditional">
+                {{answer.placeholderText}}
+            </p>
+    
+            <!-- answer.isLink Is Link -->
+            <a *ngIf="answer.isText && answer.isLink && !answer.isConditional" style="padding-top: 5px" class="mat-button-answer" target="_blank" [href]="answer.externalLink" mat-stroked-button [disableRipple]="true"  [id]="answer.propertyKey + j">
+                <mat-icon class="link" style="margin-right: 10px; margin-bottom: 5px">link</mat-icon>{{answer.placeholderText}}
+            </a>
+    
+            <!-- answer.isLink Is Link -->
+            <a *ngIf="answer.isText && answer.isLink && answer.isConditional" style="padding-top: 5px" class="mat-button-answer" target="_blank" [href]="answer.externalLink" mat-stroked-button [disableRipple]="true"  [id]="answer.propertyKey + j">
+                <mat-icon class="link" style="margin-right: 10px; margin-bottom: 5px">link</mat-icon>{{answer.placeholderText}}
+            </a>
+            
+            <!-- Is Answer Button -->
+            <button *ngIf="answer.isButton && !answer.isConditional && !answer?.isLoginWithGoogle && !answer?.isLoginWithFacebook" [id]="answer.propertyKey + j" [ngStyle]="styleCondition(answer, question)" class="mat-button-answer" (click)="onClickAnswer(answer, question, i, groups)" mat-stroked-button [disableRipple]="true" [disabled]="loading"
+                >{{answer.displayValue}}<small *ngIf="answer.hasInformationIcon" class="info-sub"><span> <mat-icon class="info-icon" [matTooltip]="answer.informationIconText">info</mat-icon></span></small></button>
+            <button *ngIf="answer.isButton && answer.isConditional && !answer?.isLoginWithGoogle && !answer?.isLoginWithFacebook" [id]="answer.propertyKey + j" [ngStyle]="styleCondition(answer, question)" class="mat-button-answer" (click)="onClickAnswer(answer, question, i, groups)" mat-stroked-button [disableRipple]="true" [disabled]="loading"
+                >{{answer.displayValue}}</button>
+
+            <!-- Is Social Login Button -->
+            <button class="mat-button-answer google" *ngIf="answer?.isLoginWithGoogle" mat-stroked-button [disableRipple]="true" [disabled]="loading"
+            (click)="signInWithGoogle(answer, question, i)"><i class="fa fa-google social-icon"></i>{{answer.displayValue}}</button>
+            <button class="mat-button-answer facebook" *ngIf="answer?.isLoginWithFacebook" mat-stroked-button [disableRipple]="true" [disabled]="loading"
+            (click)="signInWithFB(answer, question, i)"><i class="fa fa-facebook social-icon"></i>{{answer.displayValue}}</button>
+    
+            <!-- Is Input -->
+            <mat-form-field floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'" class="dynamic-input" *ngIf="answer.isInput && !answer.isVehicleVIN && !answer.isAddressSearch && !answer.isConditional && !answer.isHiddenInput">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <span matPrefix *ngIf="answer.hasPrefix">{{answer.prefixText}}</span>
+                <input matInput (blur)="updateInput($event, answer, question)" [name]="returnId(answer)" #input="ngModel" [id]="returnId(answer)" [required]="isRequired(answer, question)" [ngModel]="returnObject(answer)[answer.propertyKey]" [type]="answer.isPasswordInput ? 'password' : answer.validationType ? answer.validationType : 'text'" [email]="answer.validationType === 'email'" [disabled]="loading">
+                <span matSuffix *ngIf="answer.hasSuffix">{{answer.suffixText}}</span>
+                <mat-error *ngIf="input.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'" class="dynamic-input" *ngIf="answer.isInput && !answer.isVehicleVIN && answer.isConditional && !answer.isAddressSearch && !answer.isHiddenInput">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <span matPrefix *ngIf="answer.hasPrefix">{{answer.prefixText}}</span>
+                <input matInput (blur)="updateInput($event, answer, question)" [name]="returnId(answer)" #input="ngModel" [required]="isRequired(answer, question)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" [type]="answer.isPasswordInput ? 'password' : answer.validationType ? answer.validationType : 'text'" [disabled]="loading">
+                <span matSuffix *ngIf="answer.hasSuffix">{{answer.suffixText}}</span>
+                <mat-error *ngIf="input.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- Is Select Desktop-->
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && !answer.isConditional && !answer.isSelectObject && !isMobile && !answer.isMultipleSelect && !answer.isVehicleYear && !answer.isVehicleMake && !answer.isVehicleModel && !answer.isVehicleBodyStyle" class="dynamic-input"  floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <mat-select #select="ngModel" [required]="isRequired(answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question); onTriggerFilterOccupations($event, answer)"  disableRipple>
+                    <mat-option disabled selected value>{{answer.placeholderText}}</mat-option>
+                    <mat-option *ngFor="let option of returnOptions(answer)" [value]="returnOption('value', option)">{{returnOption('label', option)}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="select.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && answer.isConditional && !answer.isSelectObject && !isMobile && !answer.isMultipleSelect && !answer.isVehicleYear && !answer.isVehicleMake && !answer.isVehicleModel && !answer.isVehicleBodyStyle" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <mat-select #select="ngModel" [required]="isRequired(answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question); onTriggerFilterOccupations($event, answer)"  disableRipple>
+                    <mat-option *ngFor="let option of returnOptions(answer)" [value]="returnOption('value', option)">{{returnOption('label', option)}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="select.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <!-- Is Select Mobile-->
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && !answer.isConditional && !answer.isSelectObject && isMobile && !answer.isMultipleSelect && !answer.isVehicleYear && !answer.isVehicleMake && !answer.isVehicleModel && !answer.isVehicleBodyStyle" class="dynamic-input" floatLabel="always">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <select #select="ngModel" [required]="isRequired(answer, question)" matNativeControl [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question); onTriggerFilterOccupations($event, answer)"  disableRipple>
+                    <option disabled selected value> -- select an option -- </option>
+                    <option *ngFor="let option of returnOptions(answer)" [value]="returnOption('value', option)">{{returnOption('label', option)}}</option>
+                </select>
+                <mat-error *ngIf="select.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && answer.isConditional && !answer.isSelectObject && isMobile && !answer.isMultipleSelect && !answer.isVehicleYear && !answer.isVehicleMake && !answer.isVehicleModel && !answer.isVehicleBodyStyle" class="dynamic-input" floatLabel="always">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <select #select="ngModel" [required]="isRequired(answer, question)" matNativeControl [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question); onTriggerFilterOccupations($event, answer)"  disableRipple>
+                    <option disabled selected value> -- select an option -- </option>
+                    <option *ngFor="let option of returnOptions(answer)" [value]="returnOption('value', option)">{{returnOption('label', option)}}</option>
+                </select>
+                <mat-error *ngIf="select.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+              <!-- Is Multi-Select Desktop-->
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && !answer.isConditional && answer.isMultipleSelect" class="dynamic-input"  floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <mat-select #multiSelect="ngModel" [required]="isRequired(answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question)"  disableRipple multiple>
+                    <mat-option *ngFor="let option of answer.options" [value]="returnOption('value', option)">{{returnOption('label', option)}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="multiSelect.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && answer.isConditional && answer.isMultipleSelect" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <mat-select #multiSelect="ngModel" [required]="isRequired(answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question)"  disableRipple multiple>
+                    <mat-option *ngFor="let option of answer.options" [value]="returnOption('value', option)">{{returnOption('label', option)}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="multiSelect.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+    
+            <!-- Is Select Object -->
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && answer.isSelectObject && !isMobile" class="dynamic-input"  floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <mat-select #select="ngModel" [required]="isRequired(answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question)"  disableRipple>
+                    <mat-option disabled selected value>{{answer.placeholderText}}</mat-option>
+                    <mat-option [value]="null">None</mat-option>
+                    <mat-option *ngFor="let obj of returnSelectObject(answer); index as i" [value]="obj.id">{{returnSelectObjectOption(obj, answer, i)}}</mat-option>
+                    <mat-option *ngFor="let opt of answer.options">{{opt}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="select.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && answer.isSelectObject && isMobile" class="dynamic-input" floatLabel="always">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <select #select="ngModel" [required]="isRequired(answer, question)" matNativeControl [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question)"  disableRipple>
+                    <option disabled selected value> -- select an option -- </option>
+                    <mat-option [value]="null">None</mat-option>
+                    <option *ngFor="let obj of returnSelectObject(answer); index as i" [value]="obj.id">{{returnSelectObjectOption(obj, answer, i)}}</option>
+                    <mat-option *ngFor="let opt of answer.options">{{opt}}</mat-option>
+                </select>
+                <mat-error *ngIf="select.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- Is Date Picker -->
+            <mat-form-field *ngIf="answer.isDatePicker && !answer.isConditional" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <input matInput #datePicker="ngModel" [required]="isRequired(answer, question)" [matDatepicker]="dp" (dateChange)="updateInput($event, answer, question)" (blur)="updateInput($event, answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]">
+                <mat-datepicker [startView]="answer.dateStartView" [startAt]="getStartDate(answer.startDate)" #dp disabled="false"></mat-datepicker>
+                <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+                <mat-error *ngIf="datePicker.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="answer.isDatePicker && answer.isConditional" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>{{answer.placeholderText}}</mat-label>
+                <input matInput #datePicker="ngModel" [required]="isRequired(answer, question)" [matDatepicker]="dp" (dateChange)="updateInput($event, answer, question)" (blur)="updateInput($event, answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]">
+                <mat-datepicker [startView]="answer.dateStartView" [startAt]="getStartDate(answer.startDate)" #dp disabled="false"></mat-datepicker>
+                <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+                <mat-error *ngIf="datePicker.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- Is Textarea -->
+            <mat-form-field *ngIf="answer.isTextarea && !answer.isConditional" class="dynamic-input" [appearance]="answer.style" floatLabel="always">
+                <mat-label>{{answer.placeholderText || answer.secondaryPlaceholderText}}</mat-label>
+                <textarea 
+                    matInput 
+                    cdkTextareaAutosize
+                    #autosize="cdkTextareaAutosize"
+                    cdkAutosizeMinRows="3"
+                    (blur)="updateInput($event, answer, question)"
+                    #textarea="ngModel" [required]="isRequired(answer, question)"
+                    [name]="returnId(answer)" [id]="returnId(answer)"
+                    [ngModel]="returnObject(answer)[answer.propertyKey]"
+                    cdkAutosizeMaxRows="6"
+                >
+                </textarea>
+                <mat-error *ngIf="textarea.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="answer.isTextarea && answer.isConditional" class="dynamic-input" [appearance]="answer.style" floatLabel="always">
+                <mat-label>{{answer.placeholderText || answer.secondaryPlaceholderText}}</mat-label>
+                <textarea 
+                    matInput 
+                    cdkTextareaAutosize
+                    #autosize="cdkTextareaAutosize"
+                    cdkAutosizeMinRows="3"
+                    (blur)="updateInput($event, answer, question)"
+                    #textarea="ngModel" [required]="isRequired(answer, question)"
+                    [name]="returnId(answer)" [id]="returnId(answer)"
+                    [ngModel]="returnObject(answer)[answer.propertyKey]"
+                    cdkAutosizeMaxRows="6"
+                >
+                </textarea>
+                <mat-error *ngIf="textarea.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- answer.isCard Is Card -->
+            <div *ngIf="answer.isCard">
+                <div class="card-container" (click)="onClickAnswer(answer, question, i, groups)" [ngStyle]="styleCard(answer, question)" (mouseover)="cardHoverId = answer.id" (mouseleave)="cardHoverId = null">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-icon"  [innerHTML]="answer.icon | safe: 'html'"></div>
+                            <div class="card-text">
+                                <h3>{{answer.headerText}}</h3>
+                                <small>{{answer.placeholderText}}</small>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="card-info">
+                                <mat-icon *ngIf="answer.hasInformationIcon" 
+                                          class="info-icon" 
+                                          [matTooltip]="answer.informationIconText"
+                                          >info</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Is a Checkbox -->
+            <div *ngIf="answer.isCheckbox" class="dynamic-input" style="margin: 1rem 0">
+                <mat-checkbox
+                    [name]="returnId(answer)"
+                    [required]="isRequired(answer, question)"
+                    [id]="returnId(answer)"
+                    [labelPosition]="answer.labelPosition ? answer.labelPosition : 'after'" 
+                    (change)="updateInput($event, answer, question)"
+                    [checked]="isChecked(returnObject(answer)[answer.propertyKey], answer)">
+                        <span class="mat-checkbox-label-selector">
+                            {{answer.placeholderText}}
+                        </span></mat-checkbox>
+                <br>
+            </div>
+    
+            <!-- Is Address Search -->
+            <div *ngIf="answer.isAddressSearch && !answer.isConditional">
+                <mat-form-field [appearance]="answer.style ? answer.style : 'outline'" floatLabel="always" class="dynamic-input">
+                    <mat-label>{{answer.placeholderText}}</mat-label>
+                    <input
+                        matInput
+                        type="text"
+                        [name]="returnId(answer)"
+                        matGoogleMapsAutocomplete
+                        #addressSearch="ngModel" [required]="isRequired(answer, question)"
+                        [country]="us"
+                        [required]="isRequired(answer, question)"
+                        (onAutocompleteSelected)="onTriggerAutocomplete($event, returnPageTitle(answer, question), answer, question)"
+                        (onLocationSelected)="onTriggerLocationSelected($event)"
+                        [ngModel]="returnObject(answer)[answer.propertyKey]"
+                        >
+                    <span matSuffix class="zillow-tag" matTooltip="Click here to open home in Zillow" *ngIf="hasZillowLink(answer)" (click)="openZillow()"><img class="zillow-tag" src="../../../../../assets/zillow.png" alt="Zillow icon"></span>
+                    <mat-error *ngIf="addressSearch.invalid">{{answer.errorText}}</mat-error>
+                </mat-form-field>
+            </div>
+            <div *ngIf="answer.isAddressSearch && answer.isConditional">
+                <mat-form-field [appearance]="answer.style ? answer.style : 'outline'" floatLabel="always" class="dynamic-input">
+                    <mat-label>{{answer.placeholderText}}</mat-label>
+                    <input
+                        matInput
+                        type="text"
+                        [name]="returnId(answer)"
+                        #addressSearch="ngModel" [required]="isRequired(answer, question)"
+                        matGoogleMapsAutocomplete
+                        [country]="us"
+                        [required]="isRequired(answer, question)"
+                        (onAutocompleteSelected)="onTriggerAutocomplete($event, returnPageTitle(answer, question), answer, question)"
+                        (onLocationSelected)="onTriggerLocationSelected($event)"
+                        [ngModel]="returnObject(answer)[answer.propertyKey]"
+                        >
+                    <mat-error *ngIf="addressSearch.invalid">{{answer.errorText}}</mat-error>
+                </mat-form-field>
+            </div>
+    
+            <!-- IS Vehicle VIN / Vehicle Year / Vehicle Make/Model -->
+            <div *ngIf="answer.isVehicleVIN">
+                <mat-spinner diameter="50" *ngIf="loading" style="margin: 10px auto;"></mat-spinner>
+                <mat-form-field class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                    <mat-label>{{answer.placeholderText}}</mat-label>
+                    <input [type]="answer.validationType ? answer.validationType : 'text'" matInput #vehicleVin="ngModel" [required]="isRequired(answer, question)" name="vehicleVin" (ngModelChange)="onCheckForVIN($event)" [(ngModel)]="returnObject(answer).vehicleVin">
+                    <button mat-button *ngIf="returnObject(answer).vehicleVin" matSuffix mat-icon-button aria-label="Search" (click)="onTriggerGetVehicleByVIN(returnObject(answer).vehicleVin)">
+                        <mat-icon>search</mat-icon>
+                    </button>
+                    <mat-error *ngIf="vehicleVin.invalid">{{answer.errorText}}</mat-error>
+                </mat-form-field>
+            </div>
+    
+    
+            <!-- Vehicle Year Select Desktop-->
+            <mat-form-field *ngIf="answer.isVehicleYear && !isMobile" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>Vehicle Year</mat-label>
+                <mat-select (ngModelChange)="onTriggerGetVehicle($event, 'year'); updateInput($event, answer, question)" #vehicleModelYear="ngModel" [required]="isRequired(answer, question)" name="vehicleModelYear" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="returnObject(answer)[answer.propertyKey]=$event;onTriggerGetVehicle($event, 'year')" disableRipple>
+                    <mat-option *ngFor="let option of answer.options" [value]="option">{{option}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="vehicleModelYear.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <!-- Vehicle Year Select Mobile-->
+            <mat-form-field *ngIf="answer.isVehicleYear && isMobile" class="dynamic-input" floatLabel="always">
+                <mat-label>Vehicle Year</mat-label>
+                <select matNativeControl (ngModelChange)="onTriggerGetVehicle($event, 'year'); updateInput($event, answer, question)" #vehicleModelYear="ngModel" [required]="isRequired(answer, question)" name="vehicleModelYear" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="returnObject(answer)[answer.propertyKey]=$event;onTriggerGetVehicle($event, 'year')" disableRipple>
+                    <option *ngFor="let option of answer.options" [value]="option">{{option}}</option>
+                </select>
+                <mat-error *ngIf="vehicleModelYear.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <mat-form-field *ngIf="answer.isVehicleMake && !isMobile" class="dynamic-input"  [appearance]="answer.style ? answer.style : 'standard'" style="margin-bottom: 15px;" floatLabel="always">
+                <mat-label>Vehicle Make</mat-label>
+                <mat-select name="makeInput" [required]="isRequired(answer, question)" #makeInput="ngModel"  [ngModel]="returnObject(answer)['vehicleManufacturer']" (ngModelChange)="returnObject(answer)['vehicleManufacturer']=$event;onTriggerGetVehicle($event, 'make'); updateInput($event, answer, question)"  disableRipple>
+                    <mat-option>Select A Make</mat-option>
+                    <mat-option *ngFor="let make of filteredMakes" [value]="make">{{make}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="makeInput.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <mat-form-field *ngIf="answer.isVehicleMake && isMobile" class="dynamic-input" floatLabel="always">
+                <mat-label>Vehicle Make</mat-label>
+                <select matNativeControl name="makeInput" [required]="isRequired(answer, question)" #makeInput="ngModel"  [ngModel]="returnObject(answer)['vehicleManufacturer']" (ngModelChange)="returnObject(answer)['vehicleManufacturer']=$event;onTriggerGetVehicle($event, 'make'); updateInput($event, answer, question)"  disableRipple>
+                    <option>Select A Make</option>
+                    <option *ngFor="let make of filteredMakes" [value]="make">{{make}}</option>
+                </select>
+                <mat-error *ngIf="makeInput.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- Get Models -->
+            <!-- Is Select Desktop-->
+            <mat-form-field *ngIf="answer.isVehicleModel && !isMobile" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>Vehicle Model</mat-label>
+                <mat-select name="modelInput" #modelInput="ngModel" [required]="isRequired(answer, question)" [ngModel]="returnObject(answer)['vehicleModel']" (ngModelChange)="returnObject(answer)['vehicleModel']=$event;onTriggerGetVehicle($event, 'model');updateInput($event, answer, question)"  disableRipple>
+                    <mat-option>Select A Model</mat-option>
+                    <mat-option *ngFor="let model of filteredModels" [value]="model">{{model}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="modelInput.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <!-- Is Select Mobile-->
+            <mat-form-field *ngIf="answer.isVehicleModel && isMobile" class="dynamic-input" floatLabel="always">
+                <mat-label>Vehicle Model</mat-label>
+                <select matNativeControl name="modelInput" #modelInput="ngModel" [required]="isRequired(answer, question)" [ngModel]="returnObject(answer)['vehicleModel']" (ngModelChange)="returnObject(answer)['vehicleModel']=$event;onTriggerGetVehicle($event, 'model');updateInput($event, answer, question)"  disableRipple>
+                    <option>Select A Model</option>
+                    <option *ngFor="let model of filteredModels" [value]="model">{{model}}</option>
+                </select>
+                <mat-error *ngIf="modelInput.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- Get Body Styles -->
+            <!-- Is Select Desktop-->
+            <mat-form-field *ngIf="answer.isVehicleBodyStyle && !isMobile" class="dynamic-input" floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
+                <mat-label>Vehicle Body</mat-label>
+                <mat-select name="bodyInput" #bodyInput="ngModel" [required]="isRequired(answer, question)" [ngModel]="returnObject(answer)['vehicleBodyStyle']" (ngModelChange)="returnObject(answer)['vehicleBodyStyle']=$event;onTriggerGetVehicle($event, 'body style');updateInput($event, answer, question)"  disableRipple>
+                    <mat-option>Select A Body Style</mat-option>
+                    <mat-option *ngFor="let bs of filteredBodyStyles" [value]="bs">{{bs}}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="bodyInput.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+            <!-- Is Select Mobile-->
+            <mat-form-field *ngIf="answer.isVehicleBodyStyle && isMobile" class="dynamic-input" floatLabel="always">
+                <mat-label>Vehicle Body</mat-label>
+                <select matNativeControl name="bodyInput" #bodyInput="ngModel" [required]="isRequired(answer, question)" [ngModel]="returnObject(answer)['vehicleBodyStyle']" (ngModelChange)="returnObject(answer)['vehicleBodyStyle']=$event;onTriggerGetVehicle($event, 'body style');updateInput($event, answer, question)"  disableRipple>
+                    <option>Select A Body Style</option>
+                    <option *ngFor="let bs of filteredBodyStyles" [value]="bs">{{bs}}</option>
+                </select>
+                <mat-error *ngIf="bodyInput.invalid">{{answer.errorText}}</mat-error>
+            </mat-form-field>
+    
+            <!-- Is Add Driver -->
+            <div  *ngIf="answer.isAddDriver === true">                  
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="driverDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Drivers</mat-header-cell>
+                                <mat-cell *matCellDef="let driver"><span>{{returnDriverName(driver)}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let driver; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'driver')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'driver')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay; let i = index" [ngStyle]="styleActiveRow(i, 'drivers')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <br>
+                <div class="dynamic-input">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('Driver')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+    
+            <!-- Is Add Vehicle -->
+            <div *ngIf="answer.isAddVehicle === true">
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="vehicleDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Vehicles</mat-header-cell>
+                                <mat-cell *matCellDef="let vehicle"><span>{{returnVehicle(vehicle)}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let vehicle; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'vehicle')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'vehicle')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay let i = index" [ngStyle]="styleActiveRow(i, 'vehicles')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <div class="dynamic-input">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('Vehicle')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+    
+            <!-- Is Add Location -->
+            <div *ngIf="answer.isAddLocation">                  
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="locationDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Locations</mat-header-cell>
+                                <mat-cell *matCellDef="let location"><span>{{location.streetAddress}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let location; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'location')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'location')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay; let i = index" [ngStyle]="styleActiveRow(i, 'locations')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <br>
+                <div class="dynamic-input">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('Location')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+    
+            <!-- Is Add Incident -->
+            <div *ngIf="answer.isAddIncident">                  
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="incidentDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Incidents</mat-header-cell>
+                                <mat-cell *matCellDef="let incident"><span>{{incident.type}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let incident; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'incident')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'incident')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay let i = index" [ngStyle]="styleActiveRow(i, 'incidents')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <br>
+                <div class="dynamic-input" style="text-align: center">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('Incident')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+    
+            <!-- Is Add Recreational Vehicle -->
+            <div *ngIf="answer.isAddRecreationalVehicle">                  
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="recreationalVehicleDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Recreational Vehicles</mat-header-cell>
+                                <mat-cell *matCellDef="let recreationalVehicle"><span>{{recreationalVehicle.type}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let recreationalVehicle; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'recreationalVehicle')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'recreationalVehicle')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay; let i = index" [ngStyle]="styleActiveRow(i, 'recreationalVehicles')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <br>
+                <div class="dynamic-input" style="text-align: center">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('RecreationalVehicle')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+
+            <!-- Is Add Policy -->
+            <div *ngIf="answer.isAddPolicy">                  
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="policyDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Policies</mat-header-cell>
+                                <mat-cell *matCellDef="let policy"><span>{{policy.typeOfInsurance}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let policy; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'policy')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'policy')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay; let i = index" [ngStyle]="styleActiveRow(i, 'policies')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <br>
+                <div class="dynamic-input" style="text-align: center">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('Policy')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+    
+            <!-- Is Add Home -->
+            <div *ngIf="answer.isAddHome">                  
+                <div class="mat-input-long">
+                    <div class="team-table-container">
+                        <mat-table [dataSource]="homeDataSource" class="team-table custom-table">
+                            <ng-container matColumnDef="name">
+                                <mat-header-cell *matHeaderCellDef>Properties</mat-header-cell>
+                                <mat-cell *matCellDef="let home"><span>{{home.streetAddress}}</span></mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="action">
+                                <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+                                <mat-cell *matCellDef="let home; let i = index">
+                                    <button class="mat-btn" (click)="onTriggerSelectObject(i, 'home')"><span class="icon-edit1"></span></button>
+                                    <button class="mat-btn" (click)="onTriggerRemoveObject(i, 'home')"><span class="icon-rubbish-bin"></span></button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" class="table-header custom-table-header"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: columnsToDisplay; let i = index" [ngStyle]="styleActiveRow(i, 'homes')" class="custom-table-header"></mat-row>
+                        </mat-table>
+                    </div>
+                </div>
+                <br>
+                <div class="dynamic-input" style="text-align: center">
+                    <button class="mat-button-answer" mat-stroked-button [disableRipple]="true" (click)="onTriggerAddObject('Home')">{{answer.displayValue}}</button>
+                </div>
+            </div>
+    
+            <!-- Is Autocomplete -->
+            <div *ngIf="answer.isAutocomplete && !answer.isMultipleSelect">
+                <mat-form-field class="dynamic-input" floatLabel="always" [appearance]="answer.style ? answer.style : 'standard'">
+                    <mat-label>{{answer.placeholderText}}</mat-label>
+                    <input matInput disableRipple (click)="filterOptions(answer, returnObject(answer)[answer.propertyKey] ? returnObject(answer)[answer.propertyKey] : '')" [matAutocomplete]="auto" (blur)="updateInput($event, answer, question)" [name]="returnId(answer)" #autocomplete="ngModel" [id]="returnId(answer)" [required]="isRequired(answer, question)" (ngModelChange)="filterOptions(answer, $event)" [ngModel]="returnObject(answer)[answer.propertyKey]" [type]="answer.isPasswordInput ? 'password' : answer.validationType ? answer.validationType : 'text'" [disabled]="loading">
+                    <mat-icon style="font-size: 16px" matSuffix>search</mat-icon>
+                    <mat-autocomplete [id]="returnId(answer, 'mat-auto-')" (optionSelected)="updateInput($event, answer, question)" disableRipple #auto="matAutocomplete">
+                        <mat-option *ngFor="let option of searchOptions[returnId(answer)]" [value]="option">
+                            {{option}}
+                        </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="autocomplete.invalid">{{answer.errorText}}</mat-error>
+                </mat-form-field>
+            </div>
+    
+            <!-- Is Autocomplete -->
+            <div *ngIf="answer.isAutocomplete && answer.isMultipleSelect" style="transform: translateY(-14px)">
+                <mat-form-field class="dynamic-input" floatLabel="always" [appearance]="answer.style ? answer.style : 'standard'">
+                    <mat-label>{{answer.placeholderText}}</mat-label>
+                    <mat-chip-list #chipList>
+                        <mat-chip
+                          *ngFor="let option of returnObject(answer)[answer.propertyKey]"
+                          [selectable]="true"
+                          [removable]="true"
+                          (removed)="removeAutocompleteOption(answer, option)">
+                          {{option}}
+                          <mat-icon  matChipRemove>cancel</mat-icon>
+                        </mat-chip>
+                          <input matInput [matChipInputFor]="chipList"
+                          [matChipInputAddOnBlur]="addOnBlur"
+                          (matChipInputTokenEnd)="addAutcompleteOptions($event)" disableRipple #autocompleteElement 
+                          #trigger="matAutocompleteTrigger" (click)="filterOptions(answer, '')"
+                          [matAutocomplete]="auto" (blur)="updateInput($event, answer, question)" [name]="returnId(answer)" 
+                          #autoInput
+                          #autocomplete="ngModel" [id]="returnId(answer)" [required]="isRequired(answer, question)" 
+                          (ngModelChange)="searchOptions[returnId(answer, 'mat-auto-input-')]=$event; filterOptions(answer, $event)" 
+                          [ngModel]="searchOptions[returnId(answer, 'mat-auto-input-')]" 
+                          [type]="answer.isPasswordInput ? 'password' : answer.validationType ? answer.validationType : 'text'" [disabled]="loading">
+                    </mat-chip-list>
+                    <!-- <mat-icon style="font-size: 16px" matSuffix>search</mat-icon> -->
+                    <mat-autocomplete disableRipple #auto="matAutocomplete" [id]="returnId(answer, 'mat-auto-')" (optionSelected)="onAutocompleteSelectionChange(answer, autoInput)">
+                        <mat-option *ngFor="let option of searchOptions[returnId(answer)]" [value]="option" (click)="autocompleteSelectionMade(trigger)">
+                            <mat-pseudo-checkbox class="multi-select-pseudo-checkbox"
+                                [state]="isSelected(returnObject(answer)[answer.propertyKey], option)">
+                            </mat-pseudo-checkbox>
+                            <span class="multi-select-option-text">{{option}}</span>
+                        </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="autocomplete.invalid">{{answer.errorText}}</mat-error>
+                </mat-form-field>
+            </div>
+    
+            <!-- answer.isSpacer DIV SPACE -->
+            <div *ngIf="answer.isSpacer && !answer.isConditional">
+                <div class="dynamic-input"></div>
+            </div> 
+    
+            <!-- answer.isSpacer DIV SPACE -->
+            <div *ngIf="answer.isSpacer && answer.isConditional">
+                <div class="dynamic-input"></div>
+            </div> 
+    
+            <!-- answer.isSecureDocumentUpload Upload A Document -->
+            <div *ngIf="answer.isSecureDocumentUpload && !answer.isConditional">
+                <div *ngIf="uploadPercent">
+                    Upload Progress: {{ uploadPercent }}%
+                </div>   
+                
+                <input
+                    type="file"
+                    class="inputfile"
+                    name="files"
+                    id = "file"
+                    (change)="onTriggerSecureDocumentUpload()"
+                    ngf
+                    [(files)]="filesToUpload" 
+                />
+                
+                <label class="inputfile" *ngIf="!filesToUpload && !fileUploaded" for = "file" class = "mat-button-answer mat-stroked-button ">
+                    <span> <mat-icon>lock</mat-icon> {{answer.placeholderText || 'Choose a File'}}</span>
+                </label>
+    
+                <label class="inputfile" *ngIf="filesToUpload" class = "mat-button-answer mat-stroked-button ">
+                    <span> <mat-icon>lock</mat-icon> Uploading ...</span>
+                </label>
+                
+                <!-- <label class="forInputFile" for="file">Choose a file</label> -->
+                <ngfFormData
+                    [files]      = "filesToUpload"
+                    [(FormData)] = "uploadFormData"
+                    postName     = "files"
+                ></ngfFormData>
+    
+                <ngfUploadStatus
+                    [(percent)] = "uploadPercent"
+                    [httpEvent] = "httpEvent"
+                ></ngfUploadStatus>  
+    
+                <!-- <button type="button" class="inputfile" *ngIf="filesToUpload && !fileUploaded" class = "mat-button-answer mat-stroked-button" (click)="onTriggerSecureDocumentUpload()">
+                    <span> <mat-icon>cloud_upload</mat-icon> Submit File</span>
+                </button> -->
+    
+                <span *ngIf="fileUploaded">File Uploaded</span>
+    
+            </div>
+    
+            <!-- answer.isSecureDocumentUpload Upload A Document -->
+            <div *ngIf="answer.isSecureDocumentUpload && answer.isConditional">
+                <div *ngIf="uploadPercent">
+                    Upload Progress: {{ uploadPercent }}%
+                </div>   
+                
+                <input
+                    type="file"
+                    class="inputfile"
+                    name="files"
+                    id = "file"
+                    (change)="onTriggerSecureDocumentUpload()"
+                    ngf
+                    [(files)]="filesToUpload" 
+                />
+                
+                <label class="inputfile" *ngIf="!filesToUpload && !fileUploaded" for = "file" class = "mat-button-answer mat-stroked-button ">
+                    <span> <mat-icon>lock</mat-icon> {{answer.placeholderText || 'Choose a File'}}</span>
+                </label>
+                
+                <label class="inputfile" *ngIf="filesToUpload" class = "mat-button-answer mat-stroked-button ">
+                    <span> <mat-icon>lock</mat-icon> Uploading ...</span>
+                </label>
+    
+                <!-- <label class="forInputFile" for="file">Choose a file</label> -->
+                <ngfFormData
+                    [files]      = "filesToUpload"
+                    [(FormData)] = "uploadFormData"
+                    postName     = "files"
+                ></ngfFormData>
+    
+                <ngfUploadStatus
+                    [(percent)] = "uploadPercent"
+                    [httpEvent] = "httpEvent"
+                ></ngfUploadStatus>  
+    
+                <!-- <button type="button" class="inputfile" *ngIf="filesToUpload && !fileUploaded" class = "mat-button-answer mat-stroked-button" (click)="onTriggerSecureDocumentUpload()">
+                    <span> <mat-icon>cloud_upload</mat-icon> Submit File</span>
+                </button> -->
+    
+                <span *ngIf="fileUploaded">File Uploaded</span>
+    
+            </div>
+        </div>
+        <div style="width: 100%" *ngIf="!isSimpleForm">
+            <div class="dynamic-prev-next-btns" *ngIf="!returnIsLastQuestion(i, questions)" [ngStyle]="styleContinueBtns()">
+                <button type="button" class="dynamic-prev-next-btn" mat-fab *ngIf="isMobile || formMethodService.browser === 'IE'" (click)="onTransition(null, -1, false, question, i)"  [disableRipple]="true">
+                    <mat-icon class="dynamic-prev-next-btn__icon" aria-label="Previous Button" >arrow_back_ios</mat-icon>
+                </button>
+                <button type="submit" class="dynamic-prev-next-btn" *ngIf="isMobile || formMethodService.browser === 'IE'" mat-fab (click)="onTransition(null, 1, false, question, i)" [disableRipple]="true">
+                    <mat-icon class="dynamic-prev-next-btn__icon" aria-label="Next Button">arrow_forward_ios</mat-icon>
+                </button>
+                <button type="submit" class="dynamic-prev-next-btn" mat-fab *ngIf="!isMobile && formMethodService.browser !== 'IE'" (click)="onTransition(null, 1, false, question, i)" [disableRipple]="true">
+                    <mat-icon class="dynamic-prev-next-btn__icon" style="transform: translateX(-0.3rem) translateY(-.2rem);" aria-label="Next Button">arrow_downward</mat-icon>
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</form>

@@ -1,0 +1,76 @@
+
+<h3 @FadingQuestion class="summary-header" *ngIf="clientRetrieved && form && !loading && loaded">Estimated Quotes</h3>
+
+<app-rater
+    @FadingQuestion *ngIf="ratesRetrieved && dynamicRateRetrieved && questionsRetrieved && ratesRetrieved && form && !form.hasVendorRates"
+    [company]="company"
+    [client]="client"
+    [clientRate]="rate"
+    [price]="price"
+    [dynamicRate]="dynamicRate"
+    [dynamicCoverages]="dynamicRate.dynamicCoverages"
+    [loaded]="loaded"
+    [queryParams]="queryParams"
+    (transition)="routeTo('thank-you')"
+></app-rater>
+
+<app-vendor-rater
+    *ngIf="ratesRetrieved && form && !form.isSimpleForm && form.hasVendorRates"
+    [company]="company"
+    [client]="client"
+    [loaded]="loaded"
+    [isAuto]="true"
+    [isHome]="false"
+    [error]="vendorError"
+    [price]="price"
+    [premium]="premium"
+    [plan]="plan"
+    [months]="months"
+    [downPayment]="downPayment"
+    [isMobile]="false"
+    [queryParams]="queryParams"
+    [form]="form"
+    (transition)="routeTo('thank-you')"
+></app-vendor-rater>
+
+<app-multi-vendor-rater
+    *ngIf="ratesRetrieved && form && form.isSimpleForm && form.hasVendorRates"
+    [company]="company"
+    [client]="client"
+    [loaded]="loaded"
+    [error]="vendorError"
+    [rates]="vendorRates"
+    [isMobile]="false"
+    [queryParams]="queryParams"
+    [form]="form"
+    (transition)="routeTo('thank-you')"
+></app-multi-vendor-rater>
+
+<footer *ngIf="ratesRetrieved && form && !form.isSimpleForm">
+    <div class="disclaimer-container">
+        <div class="disclaimer">
+            <blockquote [ngStyle]="formMethodService.styleFooterText(companyRetrieved, form.legal)" [innerHTML]="form.legal | safe: 'html'">
+            </blockquote>
+        </div>
+    </div>
+</footer>
+
+<div id="overlay" *ngIf="!ratesRetrieved">
+</div>
+
+<div id="loading-antimation-card" *ngIf="!ratesRetrieved" @FadingDialog>
+    <div class="loader-box">
+        <div class="loader">
+                <div class="element-animation">
+                <img src="https://s3-us-west-2.amazonaws.com/xilo/icons.png" width="480" height="100">
+                </div>
+        </div>
+        <ul class="labels">
+            <li class="label">Adding Information...</li>
+            <li class="label">Calculating Rate...</li>
+            <li class="label">Retrieving Rate...</li>
+            <li class="label">Almost There...</li>
+        </ul>
+    </div>
+    <div id="progressContainer"><div id="progress" [style.background]="company.brandColor" @FillingProgressBar></div></div>
+</div> 

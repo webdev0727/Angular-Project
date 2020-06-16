@@ -1,0 +1,43 @@
+<div class="discounts-container">
+    <div class="discounts-container-content">
+        <h3 style="margin-top: 1rem">Possible Discounts On Insurance</h3>
+        <p>Choose any discounts that applies to you!</p>
+    </div>
+    <div class="discounts-container-cards">
+        <mat-card class="discount-card" *ngFor="let discount of discounts; index as i">
+            <ng-container *ngIf="!discount.hasExternalUrl">
+                <mat-card-content>
+                    <div class="round">
+                        <input [(ngModel)]="returnObject(isAuto, isHome)[discount.propertyKey]" type="checkbox" [id]="'bundleCheckbox-' + i" />
+                        <label [for]="'bundleCheckbox-' + i"></label>
+                    </div>
+                    <br>
+                    {{discount.title}}
+                </mat-card-content>
+                <mat-card-footer class="discount-card-footer">
+                    <mat-icon class="info-icon" (click)="toolTip.show()" #toolTip="matTooltip" *ngIf="discount.hasMoreInfo" [matTooltip]="discount.moreInformation">info</mat-icon>
+                </mat-card-footer>
+            </ng-container>
+            <ng-container *ngIf="discount.hasExternalUrl">
+                <mat-card-content style="margin-bottom: 0">
+                    <div class="round">
+                        <mat-icon (click)="routeToUrl(discount)" class="link">link</mat-icon>
+                    </div>
+                    <br>
+                    <br>
+                    {{discount.title}}
+                </mat-card-content>
+                <mat-card-footer class="discount-card-footer">
+                    <mat-icon class="info-icon" (click)="toolTip.show()" #toolTip="matTooltip" *ngIf="discount.hasMoreInfo" [matTooltip]="discount.moreInformation">info</mat-icon>
+                </mat-card-footer>
+            </ng-container>
+            <div class="discount-card-header">
+            </div>
+        </mat-card>
+    </div>
+    <div class="mat-button-long">
+        <button class="progress-btn" [disableRipple]="true" [innerHtml]="form && form.discountsProgressButtonText ? form.discountsProgressButtonText : 'Show My Quotes'" mat-raised-button [ngStyle]="styleBrand()" (click)="onTransition()">
+            Show My Quotes
+        </button>
+    </div>
+</div>

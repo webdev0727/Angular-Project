@@ -1,0 +1,56 @@
+<div class="splashScreen" *ngIf="!companyRetrieved || !clientRetrieved || !formRetrieved || pageLoading" [ngStyle]="styleDots()">
+    <div class="dots">
+      <div class="dot-load dot-1 dot-" [ngStyle]="styleDotsBrand()"></div>
+      <div class="dot-load dot-2 dot-" [ngStyle]="styleDotsBrand()"></div>
+      <div class="dot-load dot-3 dot-" [ngStyle]="styleDotsBrand()"></div>
+      <div class="dot-load dot-4 dot-" [ngStyle]="styleDotsBrand()"></div>
+    </div>
+    <h4 class="splashHeader launchLog"><span class="title--bold">Please wait</span> loading forms ...</h4>
+</div> 
+<div *ngIf="companyRetrieved && clientRetrieved && formRetrieved && !pageLoading" @FadingQuestion id="insurance-form">
+    <app-questions
+        [isSimpleForm]="form.isSimpleForm" 
+        [questions]="questions"
+        [company]="company"
+        [(client)]="client"
+        [(occupations)]="occupations"
+        (onFireNewLead)="onNewLead(client, queryParams)"
+        (onLocationSelected)="onLocationSelected(client, queryParams, $event)"
+        (onAutocomplete)="onAutoCompleteLocation(client, queryParams, $event, answers)"
+        [isMobile]="formMethodService.isMobile"
+        [(queryParams)]="queryParams"
+        (transitionQuestion)="onRoute($event)"
+        [driverDataSource]="driverDataSource"
+        [vehicleDataSource]="vehicleDataSource"
+        [homeDataSource]="homeDataSource"
+        [locationDataSource]="locationDataSource"
+        [incidentDataSource]="incidentDataSource"
+        [recreationalVehicleDataSource]="recreationalVehicleDataSource"
+        [policyDataSource]="policyDataSource"
+        (filterVehicles)="_filterVehicles($event)"
+        [filteredMakes]="makes"
+        [filteredModels]="models"
+        [filteredBodyStyles]="bodyStyles"
+        [agentsList]="agentsList"
+        (getVehicleByVIN)="getVehicleInfo($event)"
+        (getVehicle)="getVehicle($event)"
+        [loading]="vehicleLoading"
+        (onAddObject)="addObject($event)"
+        (onRemoveObject)="deleteObject($event)"
+        (onSelectObject)="changeObject(client, queryParams, questions, $event)"
+        (onGetUSDotData)="getUSDotData($event)"
+        (update)="upsert($event)"
+        (upsertMultiple)="upsertMultiple($event)"
+    >
+    </app-questions>
+    <!-- <footer *ngIf="!form.isSimpleForm">
+        <div class="disclaimer-container">
+            <div class="disclaimer">
+                <blockquote [ngStyle]="formMethodService.styleFooterText(companyRetrieved, form.legal)" [innerHTML]="form.legal | safe: 'html'">
+                </blockquote>
+            </div>
+        </div>
+    </footer> -->
+</div>
+
+<ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '0',fullScreenBackdrop: true }"></ngx-loading>

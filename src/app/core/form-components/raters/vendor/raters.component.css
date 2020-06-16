@@ -1,0 +1,127 @@
+p {margin-bottom: 1.3em;}
+
+h1, h2, h3, h4 {
+  margin: 1.414em 0 0.5em;
+  font-weight: inherit;
+  line-height: 1.2;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 3.998em;
+}
+
+h2 {font-size: 2.2em;}
+
+h3 {font-size: 1.999em;}
+
+h4 {font-size: 1.414em;}
+
+small, .font_small {font-size: 0.707em;}
+
+blockquote {
+    font-size: 0.707em;
+    font-style: italic;
+    color: #555;
+    opacity: .8;
+}
+
+.break{
+  flex-basis: 100%;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.card-content {
+  display:  flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  padding: 30px 10px;
+}
+
+.card-content-section {
+  flex-basis: 40%;
+}
+
+.estimate-title {
+  font-size: 1.5rem;
+}
+
+.estimate-title-sub {
+  font-size: 1rem;
+  opacity: .8;
+}
+
+.estimate-description {
+  font-size: 1rem;
+}
+
+.estimate-description-sub {
+  font-size: .75rem;
+  opacity: .8;
+}
+
+.rater-box {
+  margin-bottom: 3rem;
+  min-height: 500px;
+  flex: 1;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.rater-card {
+  width: 75%;
+  margin: .6125rem auto;
+}
+
+.vl {
+  border-left: 6px solid #ccc;
+  opacity: .3;
+  margin-top: 50px;
+  height: 350px;
+}
+
+.rater-container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.rater-icon-container {
+  height: 65px;
+  margin: 0 auto;
+  width: 65px;
+}
+
+.progress-btn {
+  background-color: #111;
+  border-radius: .3125rem;
+  color: white;
+  height: 100px;
+  font-size: 1.5rem!important;
+  margin: 0 auto;
+  margin-bottom: 100px;
+  text-align: center;
+  width: 19rem;
+}
+
+.progress-btn:focus {
+  outline: none;
+}
+
+@media (max-width: 899px) {
+  .rater-box {
+    flex: 100%;
+    min-height: 10rem;
+  }
+  .vl {
+    display: none;
+  }
+  .rater-card {
+    width: 76%;
+  }
+  .card-content-section {
+    flex-basis: 100%;
+  }
+}

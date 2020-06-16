@@ -1,0 +1,16 @@
+.progress-bar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  height: 10px;
+  background-color: #F6F6F6;
+  z-index: 2000;
+}
+
+.progress-bar {
+  height: 10px;
+  display: block;
+  transition: all .5s ease-in-out;
+}

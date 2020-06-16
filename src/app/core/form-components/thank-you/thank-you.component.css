@@ -1,0 +1,67 @@
+.main-container {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 1rem 3rem;
+}
+
+.content-container {
+    flex: 0 1 40%;
+    display: flex;
+    flex-flow: column;
+    margin-bottom: 3rem;
+}
+
+.content_company-container-logo {
+    height: 8rem;
+}
+
+.content_text-container {
+    text-align: left;
+}
+
+.content_text-container-time {
+    font-size: 4rem;
+    font-weight: 200;
+    margin-bottom: 10px;
+}
+
+.content_text-container-header {
+    font-size: 2.5rem;
+    margin-top: 10px;
+    font-weight: 600;
+    color: #393d44;
+    margin-bottom: 10px;
+}
+
+.content_text-container-subheader {
+    line-height: 2;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #9da3ad;
+}
+
+.graphic-container {
+    flex: 0 1 60%;
+    display: flex;
+    justify-content: center;
+}
+
+.graphic-container_graphic {
+    width: 30%;
+}
+
+.action-button {
+    background: #fff;
+    margin-right: .5rem;
+}
+
+@media (max-width: 799px) {
+    .main-container {
+        flex-flow: column;
+        padding: 1rem 3rem;
+    }
+    .graphic-container_graphic {
+        width: 60%;
+    }
+    
+}

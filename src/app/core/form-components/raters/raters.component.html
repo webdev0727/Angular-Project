@@ -1,0 +1,27 @@
+<div class="rater-container">
+    <div class="rater-box">
+        <mat-card class="rater-card" *ngFor="let coverage of dynamicCoverages; index as i">
+            <mat-card-content>
+                <div class="rater-icon-container" [innerHTML]="coverage.image | safe: 'html'">
+                </div>
+                <h3 class="estimate-title">
+                    <span *ngIf="dynamicRate.isMonthly">${{(coverage.premiumIncrease + price) + '/mo.'}}
+                        <br *ngIf="dynamicRate.hasMultiplyByVehicles"> <small *ngIf="dynamicRate.hasMultiplyByVehicles" class="estimate-title-sub">for all vehicles</small>
+                        <br> <small class="estimate-title-sub">{{coverage.title}}</small></span><br>
+                    <span *ngIf="dynamicRate.isAnnual" [style.fontSize]="dynamicRate.isMonthly ? '1rem' : 'inherit'">${{(coverage.premiumIncrease + price) + '/yr'}}<br> <small *ngIf="!dynamicRate.isMonthly" class="estimate-title-sub">{{coverage.title}}</small></span>
+                </h3>
+                <h5 class="estimate-description">
+                        <span *ngIf="dynamicRate.hasReplacementCost">${{replacementCost}} <br> <small class="estimate-description-sub">Replacement Cost <span></span></small> <br><br></span>
+                    <span *ngFor="let spec of coverage.specs">{{spec.coverage}} <br> <small class="estimate-description-sub">{{spec.title}} <span></span></small> <br><br></span>
+                    <!-- <mat-icon class="info-icon" matTooltip="This estimate is based off of the level of coverage you are requesting">info</mat-icon> -->
+                </h5>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+<div class="break"></div>
+<div class="mat-button-long">
+    <button class="progress-btn" [disableRipple]="true" mat-raised-button  [ngStyle]="styleBrand()" (click)="onTransition()">
+        Verify My Price
+    </button>
+</div>

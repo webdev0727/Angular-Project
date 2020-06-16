@@ -1,0 +1,75 @@
+@import "~@ng-select/ng-select/themes/material.theme.css";
+@import "./theme.scss"; 
+
+html {
+    background-color: white;
+    font-family: 'Lato', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    z-index: 0;
+    scroll-behavior: smooth;
+}
+
+body {
+    height: 100%;
+    font-family: 'Lato', sans-serif;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    z-index: 0;
+}
+
+body {
+    height: 100%;
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+    z-index: 0;
+}
+
+.alert {
+    position: fixed;
+    bottom: 0;
+    height: 50px;
+    line-height: 50px;
+    width: 100vw;
+    padding: 10px 20px;
+    z-index: 2000;
+}
+
+.alert-danger {
+    background-color: red;
+    color: #111;
+}
+
+.alert-warning {
+    background-color: #f4f400;
+    color: #111;
+}
+
+.alert-success {
+    background-color: #00C37A;
+    color: #111;
+}
+
+.snackbar-danger {
+    background-color: red;
+    color: #111;
+}
+
+.snackbar-warning {
+    background-color: #f4f400;
+    color: #111;
+}
+
+.snackbar-success {
+    background-color: #00C37A;
+    color: #111;
+}
+
+button:focus {
+    outline: none;
+}
+

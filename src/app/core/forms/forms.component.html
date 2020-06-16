@@ -1,0 +1,13 @@
+<app-client-navbar *ngIf="companyRetrieved && pagesRetrieved" [form]="form" [company]="company"></app-client-navbar>
+
+<div id="form-container">
+    <app-progress-bar
+        *ngIf="companyRetrieved && pagesRetrieved"
+        [brandColor]="company.brandColor"
+        [finishPercent]="finishPercent"
+    ></app-progress-bar>
+
+    <div class="question-container">
+        <router-outlet></router-outlet>
+    </div>
+</div>

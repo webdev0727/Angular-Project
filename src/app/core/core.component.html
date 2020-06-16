@@ -1,0 +1,21 @@
+<app-client-navbar *ngIf="companyRetrieved && formsRetrieved" [isSelectionPage]="true" [company]="company"></app-client-navbar>
+
+<div class="question-container">
+    <h4 class="question-header" @FadingIcon>Please choose the type of insurance you'd like a quote for</h4>
+    <p class="question-sub-header" @FadingIcon>Click a card below to start your insurance quote</p>
+</div>
+<div class="container" *ngIf="companyRetrieved && formsRetrieved">
+    <div class="card-container" (click)="form.externalLink ? routeToLink(form.externalLink) : returnUrl(form)" *ngFor="let form of forms" [ngStyle]="styleCard(form)" (mouseover)="cardHoverId = form.id" (mouseleave)="cardHoverId = null">
+        <div class="card">
+            <div class="card-content">
+                <div class="card-icon" [innerHTML]="returnIcon(form) | safe: 'html'"></div>
+                <div class="card-text">
+                    <h3>{{returnTitle(form.title)}}</h3>
+                </div>
+            </div>
+            <div class="card-footer">
+
+            </div>
+        </div>
+    </div>
+</div>

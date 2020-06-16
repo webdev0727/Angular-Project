@@ -1,0 +1,23 @@
+<div class="raters-container" *ngIf="rates">
+    <div class="rater-box" *ngFor="let rate of rates" (click)="navigateToCarrier(rate.url)">
+        <div class="rater-box-content">
+            <div class="rater-box-content-image">
+                <img [src]="returnBranding(rate.carrier).img" [alt]="returnBranding(rate.carrier).title" class="rater-box-content-image-img">
+            </div>
+            <div class="rater-box-content-text">
+                <h4 class="rater-box-content-text-header">{{returnBranding(rate.carrier).title}}</h4>
+                <span class="rater-box-content-text-description">{{returnBranding(rate.carrier).tagline}}</span>
+            </div>
+        </div>
+        <div class="rater-box-quote">
+            <div class="rater-box-quote-content" *ngIf="!error">
+                <div class="rater-box-quote-content-icon" [innerHTML]="returnShieldSvg() | safe: 'html'"></div>
+                <h4 class="rater-box-content-text-header">{{returnFixedPrice(rate.ppm)}} / mo.</h4>
+                <span class="rater-box-content-text-description">Down: {{returnFixedPrice(rate.downPayment)}}</span>
+                <span class="rater-box-content-text-description">Term: {{rate.months}} months</span>
+                <span class="rater-box-content-text-description">Total: {{returnFixedPrice(rate.premium)}}</span>
+            </div>
+            <button class="rater-box-quote-error-btn" *ngIf="error" (click)="navigateToCarrier(rate.url)">Finish Quote</button>
+        </div>
+    </div>
+</div>

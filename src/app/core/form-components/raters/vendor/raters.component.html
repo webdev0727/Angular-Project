@@ -1,0 +1,51 @@
+<div class="rater-container">
+    <div class="rater-box">
+        <mat-card class="rater-card">
+            <mat-card-content class="card-content">
+                <div class="card-content-section" id="top" *ngIf="!error">
+                    <h2>Estimated Quote</h2>
+                    <div class="rater-icon-container" [innerHTML]="returnShieldSvg() | safe: 'html'">
+                    </div>
+                    <h3 class="estimate-title">
+                        <span>${{returnFixedNumber(price) + ' per month'}}<br> 
+                            <small class="estimate-title-sub">{{months ? months + ' Months' : ''}}</small><br>
+                            <small class="estimate-title-sub" *ngIf="downPayment">${{downPayment ? downPayment + ' Down Payment' : ''}}</small><br *ngIf="downPayment">
+                            <small class="estimate-title-sub" *ngIf="downPayment">${{premium ? premium + ' Total Premium' : ''}}</small><br *ngIf="downPayment">
+                        </span>
+                    </h3>
+                </div>
+                <div class="card-content-section" id="top" *ngIf="error">
+                    <h2>Estimated Quote</h2>
+                    <div class="rater-icon-container" [innerHTML]="returnShieldSvg() | safe: 'html'">
+                    </div>
+                    <h4>
+                        <span>We're going to need more time to run your quote!</span>
+                    </h4>
+                </div>
+                <div class="vl"></div>
+                <div class="card-content-section" id="bottom" *ngIf="!error">
+                    <h2>Policy Coverage</h2>
+                    <h5 class="estimate-description">
+                        <span>Bodily Injury <br> <small class="estimate-description-sub">{{returnCoverage().BIPD}}<span></span></small> <br><br></span>
+                        <span>UM/UIM <br> <small class="estimate-description-sub">{{returnCoverage().UMUIM}} <span></span></small> <br><br></span>
+                        <span>Comp <br> <small class="estimate-description-sub">{{returnCoverage().COMP}} <span></span></small> <br><br></span>
+                        <span>Coll <br> <small class="estimate-description-sub">{{returnCoverage().COLL}} <span></span></small> <br><br></span>
+                        <mat-icon class="info-icon" matTooltip="This estimate is based off of the level of coverage you are requesting">info</mat-icon>
+                    </h5>
+                </div>
+                <div class="card-content-section" id="bottom" *ngIf="error">
+                    <h2>Thank You!</h2>
+                    <h3 class="estimate-description">
+                        <span>Based your the information you entered, we're going to need more time to run your quote. An agent will be with you shortly!</span>
+                    </h3>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+<div class="break"></div>
+<div class="mat-button-long" *ngIf="!error && !form.isSimpleForm">
+    <button class="progress-btn" [disableRipple]="true" mat-raised-button  [ngStyle]="styleBrand()" (click)="onTransition()">
+        Verify My Price
+    </button>
+</div>

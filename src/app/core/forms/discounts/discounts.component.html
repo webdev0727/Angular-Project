@@ -1,0 +1,16 @@
+<span *ngIf="!clientRetrieved || !discountsRetrieved"><h4>Please Wait While We Load Possible Discounts</h4><h1 class="loading"><span>.</span><span>.</span><span>.</span></h1></span>
+<form #discountsForm="ngForm" *ngIf="companyRetrieved && clientRetrieved && discountsRetrieved" @FadingQuestion>
+    <div id="top"></div>
+    <app-discount
+            [company]="company"
+            [client]="client"
+            [isAuto]="false"
+            [isHome]="false"
+            [form]="form"
+            [isMobile]="false"
+            [queryParams]="queryParams"
+            [discounts]="discounts"
+            (transition)="routeTo($event)"
+    >
+    </app-discount>
+</form>
