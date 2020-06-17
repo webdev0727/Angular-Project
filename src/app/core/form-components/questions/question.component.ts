@@ -97,7 +97,7 @@ export class QuestionComponent {
     industry = null;
     homeAddress = false;
     clientAddress = false;
-    isClientaddress:any = false;
+    isClientaddress:any = '';
 
     public user: any = SocialUser;
 
@@ -294,9 +294,12 @@ export class QuestionComponent {
     }
 
     onTransition(answer: Answer, transition: number, progress?: boolean, question?: Question, index?: any) {
-        
+
+
         try {
             
+            this.isClientaddress = this.insuranceForm.form.value['4465']['client-hasPreviousAddress'];
+
             if(this.insuranceForm.form.value && this.insuranceForm.form.value['4465']){
 
                 if(this.homeAddress==false){
@@ -306,7 +309,6 @@ export class QuestionComponent {
                     });
                     return false;  
                 }
-                
                 if(this.isClientaddress=='Yes'){
                     if(this.clientAddress==false){
                         this.logService.snack('Enter Current address', 'Dismiss', {
@@ -317,7 +319,7 @@ export class QuestionComponent {
                     }
                 }
             }
-
+            
             const isMobileFlow = (this.isMobile || this.formMethodService.browser === 'IE');
             const isFirstQuestion = (+this.queryParams.question === 0);
             progress = (typeof progress == 'undefined' || (isMobileFlow && isFirstQuestion)) ? false : progress;
@@ -379,7 +381,8 @@ export class QuestionComponent {
 
     onTriggerAutocomplete(event, title: string, answer: Answer, question: Question) {
         const obj = {data: event, title: title, answer: answer, question: question};
-        console.log(obj.title);
+       
+
         if(obj.title=='homes'){
             this.homeAddress = true;
         }
@@ -415,6 +418,18 @@ export class QuestionComponent {
     onTriggerLocationSelected(event, answer: Answer) {
         const obj = {data: event, answer: answer};
         this.onLocationSelected.emit(obj);
+    }
+
+    onTriggerLocationSelectedkeyup(event,answer) {
+
+        if(answer.id==23262){
+            this.homeAddress = false;
+        }
+
+        if(answer.id==23264){
+            this.clientAddress = false;
+        }
+
     }
 
     onTriggerGetVehicle(event, type) {

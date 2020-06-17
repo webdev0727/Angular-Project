@@ -256,6 +256,7 @@
                         [required]="isRequired(answer, question)"
                         (onAutocompleteSelected)="onTriggerAutocomplete($event, returnPageTitle(answer, question), answer, question)"
                         (onLocationSelected)="onTriggerLocationSelected($event)"
+                        (keyup)="onTriggerLocationSelectedkeyup($event,answer)"
                         [ngModel]="returnObject(answer)[answer.propertyKey]"
                         >
                     <span matSuffix class="zillow-tag" matTooltip="Click here to open home in Zillow" *ngIf="hasZillowLink(answer)" (click)="openZillow()"><img class="zillow-tag" src="../../../../../assets/zillow.png" alt="Zillow icon"></span>
