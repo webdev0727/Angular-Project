@@ -254,6 +254,7 @@
                         #addressSearch="ngModel" [required]="isRequired(answer, question)"
                         [country]="us"
                         [required]="isRequired(answer, question)"
+						
                         (onAutocompleteSelected)="onTriggerAutocomplete($event, returnPageTitle(answer, question), answer, question)"
                         (onLocationSelected)="onTriggerLocationSelected($event)"
                         [ngModel]="returnObject(answer)[answer.propertyKey]"

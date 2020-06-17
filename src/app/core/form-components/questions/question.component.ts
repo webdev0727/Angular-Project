@@ -95,6 +95,7 @@ export class QuestionComponent {
     randomArray = [];
     occupationsRetrieved = false;
     industry = null;
+	 IsplaceChange = false;
 
     public user: any = SocialUser;
 
@@ -289,6 +290,7 @@ export class QuestionComponent {
     }
 
     onTransition(answer: Answer, transition: number, progress?: boolean, question?: Question, index?: any) {
+	
         try {
             const isMobileFlow = (this.isMobile || this.formMethodService.browser === 'IE');
             const isFirstQuestion = (+this.queryParams.question === 0);
@@ -297,6 +299,8 @@ export class QuestionComponent {
                 this.queryParams['question'] = 0;
             }
             if (progress && this.groupsAreValid()) {
+	   
+
                 if (location.pathname.includes('driver') && this.client.drivers && this.client.drivers[0] && 
                     this.client.drivers[0].applicantMaritalStatusCd === 'Married' && this.client.drivers.length < 2) {
                         this.logService.snack('You Must Add Your Spouse', 'Dismiss', {
@@ -305,7 +309,20 @@ export class QuestionComponent {
                         });
                         return false;                        
                 }
+                //this.IsplaceChange=true;
                 question = this.questions[this.questions.length - 1];
+
+                if (this.IsplaceChange == false && question.id=="4465" ) {
+                    //  alert("please Enter valid location");
+                    this.logService.snack('Address is required', 'Dismiss', 2000);
+                      return false;
+                  }
+                  else
+                  {
+                    this.IsplaceChange=true;
+      
+                  }
+
                 index = this.questions.length - 1;
             } else if (progress && !this.groupsAreValid()) {
                 this.logService.snack('Invalid or Missing Response', 'Dismiss', 2000);
@@ -350,9 +367,11 @@ export class QuestionComponent {
     }
 
     onTriggerAutocomplete(event, title: string, answer: Answer, question: Question) {
+       // this.IsplaceChange=true;
         const obj = {data: event, title: title, answer: answer, question: question};
         this.onAutocomplete.emit(obj);
     }
+	
 
     onTriggerCalculateAge(event, date?) {
         let value;
@@ -378,8 +397,26 @@ export class QuestionComponent {
     }
 
     onTriggerLocationSelected(event, answer: Answer) {
-        const obj = {data: event, answer: answer};
-        this.onLocationSelected.emit(obj);
+        //alert('hello');
+        
+
+
+if(event.latitude!=null && event.longitude!=null)
+{
+    this.IsplaceChange = true;
+    const obj = {data: event, answer: answer};
+    this.onLocationSelected.emit(obj);
+
+}
+else
+{
+    this.IsplaceChange = false;
+    const obj = {data: event, answer: answer};
+    this.onLocationSelected.emit(obj);
+
+}
+ 
+		
     }
 
     onTriggerGetVehicle(event, type) {
