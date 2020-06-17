@@ -297,23 +297,27 @@ export class QuestionComponent {
 
 
         try {
-            
-            this.isClientaddress = this.insuranceForm.form.value['4465']['client-hasPreviousAddress'];
+            console.log(this.insuranceForm.form.value);
 
             if(this.insuranceForm.form.value && this.insuranceForm.form.value['4465']){
 
                 if(this.homeAddress==false){
                     this.logService.snack('Enter home address', 'Dismiss', {
                         verticalPosition: 'top',
-                        panelClass: ['snackbar-warning']
+                        panelClass: ['snackbar-warning'],
+                        duration: 2000
                     });
                     return false;  
                 }
-                if(this.isClientaddress=='Yes'){
+                
+                this.isClientaddress =  this.insuranceForm.form.value['4465']['client-hasPreviousAddress'];
+
+                if(this.insuranceForm.form.value['4465'] && this.isClientaddress=='Yes'){
                     if(this.clientAddress==false){
-                        this.logService.snack('Enter Current address', 'Dismiss', {
+                        this.logService.snack('Enter current address', 'Dismiss', {
                             verticalPosition: 'top',
-                            panelClass: ['snackbar-warning']
+                            panelClass: ['snackbar-warning'],
+                            duration: 2000
                         });
                         return false;
                     }
