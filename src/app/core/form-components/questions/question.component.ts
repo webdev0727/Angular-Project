@@ -95,6 +95,9 @@ export class QuestionComponent {
     randomArray = [];
     occupationsRetrieved = false;
     industry = null;
+    homeAddress = false;
+    clientAddress = false;
+    isClientaddress:any = false;
 
     public user: any = SocialUser;
 
@@ -109,6 +112,8 @@ export class QuestionComponent {
 
     updateInput(value, answer: Answer, question: Question) {
         value = value.target ? value.target.value : value.option ? value.option.value : value;
+        this.isClientaddress = value;
+        
         if ((value || value === false) && typeof value != 'undefined' && value !== '') {
             if (answer.transformResponse === 'capitalize') {
                 value = value.toUpperCase();
@@ -289,7 +294,27 @@ export class QuestionComponent {
     }
 
     onTransition(answer: Answer, transition: number, progress?: boolean, question?: Question, index?: any) {
+        
         try {
+
+            if(this.homeAddress==false){
+                this.logService.snack('Enter home address', 'Dismiss', {
+                    verticalPosition: 'top',
+                    panelClass: ['snackbar-warning']
+                });
+                return false;  
+            }
+            
+            if(this.isClientaddress=='Yes'){
+                if(this.clientAddress==false){
+                    this.logService.snack('Enter Current address', 'Dismiss', {
+                        verticalPosition: 'top',
+                        panelClass: ['snackbar-warning']
+                    });
+                    return false;
+                }
+            }
+
             const isMobileFlow = (this.isMobile || this.formMethodService.browser === 'IE');
             const isFirstQuestion = (+this.queryParams.question === 0);
             progress = (typeof progress == 'undefined' || (isMobileFlow && isFirstQuestion)) ? false : progress;
@@ -351,6 +376,13 @@ export class QuestionComponent {
 
     onTriggerAutocomplete(event, title: string, answer: Answer, question: Question) {
         const obj = {data: event, title: title, answer: answer, question: question};
+        console.log(obj.title);
+        if(obj.title=='homes'){
+            this.homeAddress = true;
+        }
+        if(obj.title=='client'){
+            this.clientAddress = true;
+        }
         this.onAutocomplete.emit(obj);
     }
 
@@ -974,6 +1006,10 @@ export class QuestionComponent {
         if (answer && answer.objectName && answer.propertyKey) {
             return `${prefix ? prefix : ''}${answer.objectName}-${answer.propertyKey}`;
         }
+    }
+
+    autocompletecheck(data){
+        console.log(data);
     }
 
     arrayExists(array) {
