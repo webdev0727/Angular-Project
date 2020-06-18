@@ -109,7 +109,10 @@ export class QuestionComponent {
         private router: Router,
         private clientService: ClientService,
         private authService: AuthService
-    ) {}
+    ) {
+        console.log('---',this.clientAddress);
+        console.log(this.isClientaddress);
+    }
 
     updateInput(value, answer: Answer, question: Question) {
         value = value.target ? value.target.value : value.option ? value.option.value : value;
@@ -298,11 +301,9 @@ export class QuestionComponent {
         
         try {
             
-           
+            if(this.insuranceForm.form.value && arg=='Continue &#8594;'  ){
 
-            if(this.insuranceForm.form.value && arg=='Continue &#8594;'){
-
-                if(this.homeAddress==false){
+                if(this.homeAddress==false && localStorage.getItem("homeAddress")=='false'){
                     this.logService.snack('Enter home address', 'Dismiss', {
                         verticalPosition: 'top',
                         panelClass: ['snackbar-warning'],
@@ -313,10 +314,8 @@ export class QuestionComponent {
                 
                 for (var prop in this.insuranceForm.form.value) {
                     var form_id = prop;
-                    
-
                     if(this.insuranceForm.form.value[form_id]['client-hasPreviousAddress']=='Yes'){
-                        if(this.clientAddress==false){
+                        if(this.clientAddress==false && localStorage.getItem("clientAddress")=='false'){
                             this.logService.snack('Enter current address', 'Dismiss', {
                                 verticalPosition: 'top',
                                 panelClass: ['snackbar-warning'],
@@ -328,6 +327,9 @@ export class QuestionComponent {
 
                 }
 
+
+                localStorage.setItem("clientAddress", 'true');
+                localStorage.setItem("homeAddress", 'true');
 
              
             }
@@ -393,11 +395,13 @@ export class QuestionComponent {
 
     onTriggerAutocomplete(event, title: string, answer: Answer, question: Question,index) {
         const obj = {data: event, title: title, answer: answer, question: question};
-       
+
         if(index==0){
+            localStorage.setItem("homeAddress", 'false');
             this.homeAddress = true;
         }
         if(index==2){
+            localStorage.setItem("clientAddress", 'false');
             this.clientAddress = true;
         }
         this.onAutocomplete.emit(obj);
@@ -434,15 +438,17 @@ export class QuestionComponent {
   
     onTriggerLocationSelectedkeyup(event,index) {
 
+        localStorage.setItem("page1", 'false');
+
         if(index==0){
             this.homeAddress = false;
-            console.log(this.homeAddress,'this.homeAddress')
+            localStorage.setItem("homeAddress", 'false');
 
         }
 
         if(index==2){
             this.clientAddress = false;
-            console.log(this.clientAddress,'this.clientAddress')
+            localStorage.setItem("clientAddress", 'false');
         }
 
     }
