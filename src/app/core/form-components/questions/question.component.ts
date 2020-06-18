@@ -98,6 +98,7 @@ export class QuestionComponent {
     homeAddress = false;
     clientAddress = false;
     isClientaddress:any = '';
+    button = 1;
 
     public user: any = SocialUser;
 
@@ -293,13 +294,13 @@ export class QuestionComponent {
         this.returnObject(answer)[answer.propertyKey].push(opt);
     }
 
-    onTransition(answer: Answer, transition: number, progress?: boolean, question?: Question, index?: any) {
-
-
+    onTransition(answer: Answer, transition: number, progress?: boolean, question?: Question, index?: any,arg?:any) {
+        
         try {
-            console.log(this.insuranceForm.form.value);
+            
+            console.log(this.clientAddress);
 
-            if(this.insuranceForm.form.value && this.insuranceForm.form.value['4465']){
+            if(this.insuranceForm.form.value && arg=='Continue &#8594;'){
 
                 if(this.homeAddress==false){
                     this.logService.snack('Enter home address', 'Dismiss', {
@@ -310,9 +311,14 @@ export class QuestionComponent {
                     return false;  
                 }
                 
-                this.isClientaddress =  this.insuranceForm.form.value['4465']['client-hasPreviousAddress'];
+                for (var prop in this.insuranceForm.form.value) {
+                    var form_id = prop;
+                }
 
-                if(this.insuranceForm.form.value['4465'] && this.isClientaddress=='Yes'){
+                console.log(this.insuranceForm.form.value[form_id]['client-hasPreviousAddress']);
+
+                if(this.insuranceForm.form.value[form_id]['client-hasPreviousAddress']=='Yes'){
+                    
                     if(this.clientAddress==false){
                         this.logService.snack('Enter current address', 'Dismiss', {
                             verticalPosition: 'top',
@@ -383,14 +389,13 @@ export class QuestionComponent {
         // this.insuranceForm.resetForm(this.insuranceForm.form.value);
     }
 
-    onTriggerAutocomplete(event, title: string, answer: Answer, question: Question) {
+    onTriggerAutocomplete(event, title: string, answer: Answer, question: Question,index) {
         const obj = {data: event, title: title, answer: answer, question: question};
        
-
-        if(obj.title=='homes'){
+        if(index==0){
             this.homeAddress = true;
         }
-        if(obj.title=='client'){
+        if(index==2){
             this.clientAddress = true;
         }
         this.onAutocomplete.emit(obj);
@@ -424,14 +429,18 @@ export class QuestionComponent {
         this.onLocationSelected.emit(obj);
     }
 
-    onTriggerLocationSelectedkeyup(event,answer) {
+  
+    onTriggerLocationSelectedkeyup(event,index) {
 
-        if(answer.id==23262){
+        if(index==0){
             this.homeAddress = false;
+            console.log(this.homeAddress,'this.homeAddress')
+
         }
 
-        if(answer.id==23264){
+        if(index==2){
             this.clientAddress = false;
+            console.log(this.clientAddress,'this.clientAddress')
         }
 
     }
@@ -495,6 +504,7 @@ export class QuestionComponent {
     }
 
     onTriggerFilterOccupations(industry: string, answer: Answer) {
+
         if (industry && answer.isIndustry) {
             this.occupations = findOccupations(industry);
             this.occupationsRetrieved = true;
@@ -800,6 +810,7 @@ export class QuestionComponent {
     }
 
     returnObject(answer?: Answer) {
+
         try {
             if (answer && answer.objectName) {
                 const obj = answer.objectName;
@@ -911,11 +922,13 @@ export class QuestionComponent {
 
     returnOptionsMap(values: any[]) {
         return values.map(val => { 
+            
             return { option: val }
         });
     }
 
     returnOption(type: string, option: any) {
+
         if (typeof option !== 'string') {
             return option[type];
         } else {
@@ -1023,6 +1036,7 @@ export class QuestionComponent {
             return `Continue &#8594;`
         }
     }
+
 
     returnId(answer: Answer, prefix?: string) {
         if (answer && answer.objectName && answer.propertyKey) {

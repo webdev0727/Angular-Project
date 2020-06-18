@@ -15,7 +15,7 @@
         </ng-container>
         <div class="dynamic-progress-btn" style="z-index: 600" [ngStyle]="styleProgressBtn()" *ngIf="returnProgressConditionMobile()">
             <div class="dynamic-input">
-                <button type="submit" id="progressBtn" class="progress-btn" [disableRipple]="true" mat-raised-button [ngStyle]="styleBrand()" id="toSummary" (click)="$event.preventDefault(); onTransition(null, 1, true, null, i, null)" [innerHtml]="returnProgressButtonText()">
+                <button type="submit" id="progressBtn" class="progress-btn" [disableRipple]="true" mat-raised-button [ngStyle]="styleBrand()" id="toSummary" (click)="$event.preventDefault(); onTransition(null, 1, true, null, i, returnProgressButtonText())" [innerHtml]="returnProgressButtonText()">
                 </button>
             </div>
         </div>
@@ -26,7 +26,7 @@
         </ng-container>
         <div class="dynamic-progress-btn" style="z-index: 600; width: 100%" [ngStyle]="styleProgressBtn()" *ngIf="returnProgressConditionMobile()">
             <div class="dynamic-input">
-                <button type="submit" id="progressBtn" class="progress-btn" [disableRipple]="true" mat-raised-button [ngStyle]="styleBrand()" id="toSummary" (click)="$event.preventDefault(); onTransition(null, 1, true, null, i, null)" [innerHtml]="returnProgressButtonText()">
+                <button type="submit" id="progressBtn" class="progress-btn" [disableRipple]="true" mat-raised-button [ngStyle]="styleBrand()" id="toSummary" (click)="$event.preventDefault(); onTransition(null, 1, true, null, i, returnProgressButtonText())" [innerHtml]="returnProgressButtonText()">
                 </button>
             </div>
         </div>
@@ -83,7 +83,7 @@
     
             <!-- Is Select Desktop-->
             <mat-form-field [ngStyle]="styleSelect()" *ngIf="answer.isSelect && !answer.isConditional && !answer.isSelectObject && !isMobile && !answer.isMultipleSelect && !answer.isVehicleYear && !answer.isVehicleMake && !answer.isVehicleModel && !answer.isVehicleBodyStyle" class="dynamic-input"  floatLabel="always"  [appearance]="answer.style ? answer.style : 'standard'">
-                <mat-label>{{answer.placeholderText}}</mat-label>
+                <mat-label>{{answer.placeholderText}} **</mat-label>
                 <mat-select #select="ngModel" [required]="isRequired(answer, question)" [name]="returnId(answer)" [id]="returnId(answer)" [ngModel]="returnObject(answer)[answer.propertyKey]" (ngModelChange)="updateInput($event, answer, question); onTriggerFilterOccupations($event, answer)"  disableRipple>
                     <mat-option disabled selected value>{{answer.placeholderText}}</mat-option>
                     <mat-option *ngFor="let option of returnOptions(answer)" [value]="returnOption('value', option)">{{returnOption('label', option)}}</mat-option>
@@ -254,9 +254,9 @@
                         #addressSearch="ngModel" [required]="isRequired(answer, question)"
                         [country]="us"
                         [required]="isRequired(answer, question)"
-                        (onAutocompleteSelected)="onTriggerAutocomplete($event, returnPageTitle(answer, question), answer, question)"
-                        (onLocationSelected)="onTriggerLocationSelected($event)"
-                        (keyup)="onTriggerLocationSelectedkeyup($event,answer)"
+                        (onAutocompleteSelected)="onTriggerAutocomplete($event, returnPageTitle(answer, question), answer, question,j)"
+                        (onLocationSelected)="onTriggerLocationSelected($event,j)"
+                        (keyup)="onTriggerLocationSelectedkeyup($event,j)"
                         [ngModel]="returnObject(answer)[answer.propertyKey]"
                         >
                     <span matSuffix class="zillow-tag" matTooltip="Click here to open home in Zillow" *ngIf="hasZillowLink(answer)" (click)="openZillow()"><img class="zillow-tag" src="../../../../../assets/zillow.png" alt="Zillow icon"></span>
