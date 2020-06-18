@@ -110,8 +110,7 @@ export class QuestionComponent {
         private clientService: ClientService,
         private authService: AuthService
     ) {
-        console.log('---',this.clientAddress);
-        console.log(this.isClientaddress);
+         
     }
 
     updateInput(value, answer: Answer, question: Question) {
