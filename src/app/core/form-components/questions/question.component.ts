@@ -298,7 +298,7 @@ export class QuestionComponent {
         
         try {
             
-            console.log(this.clientAddress);
+           
 
             if(this.insuranceForm.form.value && arg=='Continue &#8594;'){
 
@@ -313,21 +313,23 @@ export class QuestionComponent {
                 
                 for (var prop in this.insuranceForm.form.value) {
                     var form_id = prop;
-                }
-
-                console.log(this.insuranceForm.form.value[form_id]['client-hasPreviousAddress']);
-
-                if(this.insuranceForm.form.value[form_id]['client-hasPreviousAddress']=='Yes'){
                     
-                    if(this.clientAddress==false){
-                        this.logService.snack('Enter current address', 'Dismiss', {
-                            verticalPosition: 'top',
-                            panelClass: ['snackbar-warning'],
-                            duration: 2000
-                        });
-                        return false;
+
+                    if(this.insuranceForm.form.value[form_id]['client-hasPreviousAddress']=='Yes'){
+                        if(this.clientAddress==false){
+                            this.logService.snack('Enter current address', 'Dismiss', {
+                                verticalPosition: 'top',
+                                panelClass: ['snackbar-warning'],
+                                duration: 2000
+                            });
+                            return false;
+                        }
                     }
+
                 }
+
+
+             
             }
             
             const isMobileFlow = (this.isMobile || this.formMethodService.browser === 'IE');
